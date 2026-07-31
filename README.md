@@ -1,18 +1,10 @@
 # Filipino Cookbook Client
 
-## 1. Application Title
-
-**Filipino Cookbook Client**
-
-A web-based client application that consumes the Filipino Cookbook REST API and presents Filipino food information through an interactive user interface.
-
----
-
-## 2. Application Description
+## Application Description
 
 ### Purpose
 
-This client application serves as a driver program that retrieves Filipino food information from a classmate's REST API. It demonstrates how a front-end application can consume secured API endpoints, process JSON responses, and display the data in a readable format without accessing the API developer's database directly.
+A web-based client application that consumes the Filipino Cookbook REST API and presents Filipino food information through an interactive user interface. This client application serves as a driver program that retrieves Filipino food information from a classmate's REST API. It demonstrates how a front-end application can consume secured API endpoints, process JSON responses, and display the data in a readable format without accessing the API developer's database directly.
 
 ### API Used
 
@@ -38,15 +30,13 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 
 ## 3. Technologies Used
 
-| Category | Technology |
-|---|---|
-| Markup | HTML5 |
-| Styling | CSS3 |
-| Programming | JavaScript (Vanilla) |
-| API Communication | Fetch API |
-| Data Format | JSON |
-| Local Server | XAMPP (Apache) |
-| API Server | PHP Built-in Server (classmate's API) |
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+- Fetch API
+- JSON
+- XAMPP (Apache)
+- PHP Built-in Server (classmate's API)
 
 ---
 
@@ -63,9 +53,6 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 ```bash
 git clone https://github.com/cmc06-boop/filipino-cookbook-client-casilla.git
 cd filipino-cookbook-client-casilla
-```
-```
-C:\xampp\htdocs\filipino-cookbook-client-casilla
 ```
 
 ### Step 2: Start the API server
@@ -125,72 +112,17 @@ Ensure the API server is running before using the client.
 
 ## 5. API Endpoints Used
 
-All secured endpoints require the following headers:
+The following endpoints from the Filipino Cookbook API are consumed by this client application. Secured endpoints require `Authorization: Bearer YOUR_API_TOKEN` and `Accept: application/json`.
 
-```
-Authorization: Bearer YOUR_API_TOKEN
-Accept: application/json
-```
-
-| Method | Endpoint | Description | Used In |
-|---|---|---|---|
-| `GET` | `/api` | Returns the API welcome message and note | Home page |
-| `GET` | `/api/foods` | Returns all foods with category, origin, instructions, and ingredients | Foods page |
-| `GET` | `/api/foods/{id}` | Returns full details for one food item | Food details modal |
-| `GET` | `/api/foods/search/{name}` | Searches foods by name (case-insensitive) | Search feature |
-| `GET` | `/api/categories` | Returns all food categories | Categories page, Foods filter, Add Food form |
-| `GET` | `/api/categories/{id}/foods` | Returns foods belonging to a specific category | Category filter, Category modal |
-| `GET` | `/api/ingredients` | Returns all ingredients | Ingredients page, Add Food form |
-| `GET` | `/api/foods/random` | Returns one randomly selected food | Random food feature |
-| `POST` | `/api/foods` | Adds a new food record with validation | Add Food form |
-
-### Example: GET /api/foods
-
-**Request:**
-
-```
-GET http://127.0.0.1:8080/api/foods
-Authorization: Bearer YOUR_API_TOKEN
-Accept: application/json
-```
-
-**Response:**
-
-```json
-[
-  {
-    "food_id": 11,
-    "food_name": "Lumpiang Shanghai",
-    "category_name": "Appetizer",
-    "origin_name": "Philippines",
-    "instructions": "Mix ground pork, vegetables, and egg. Wrap in spring roll wrappers and deep-fry until golden brown.",
-    "ingredients": ["Carrots", "Egg", "Garlic", "Ground pork", "Onion", "Spring roll wrapper"]
-  }
-]
-```
-
-### Example: POST /api/foods
-
-**Request body:**
-
-```json
-{
-  "food_name": "New Dish",
-  "category_id": 1,
-  "origin_id": 1,
-  "instructions": "Prepare and cook.",
-  "ingredient_ids": [1, 2]
-}
-```
-
-**Success response:**
-
-```json
-{
-  "status": "success",
-  "message": "Food added successfully."
-}
-```
+- **GET /api** — Returns the API welcome message and note. Used on the Home page.
+- **GET /api/foods** — Returns all foods with category, origin, instructions, and ingredients. Used on the Foods page.
+- **GET /api/foods/{id}** — Returns full details for one food item. Used in the food details modal.
+- **GET /api/foods/search/{name}** — Searches foods by name (case-insensitive). Used in the header search feature.
+- **GET /api/categories** — Returns all food categories. Used on the Categories page, Foods filter chips, and Add Food form.
+- **GET /api/categories/{id}/foods** — Returns foods belonging to a specific category. Used in the category filter and category modal.
+- **GET /api/ingredients** — Returns all ingredients. Used on the Ingredients page and Add Food form.
+- **GET /api/foods/random** — Returns one randomly selected food. Used in the random food feature.
+- **POST /api/foods** — Adds a new food record with validation. Used in the Add Food form.
 
 ---
 
@@ -198,81 +130,94 @@ Accept: application/json
 
 ### Home Page
 
-![Home Page](Screenshots/Welcome%20Public%20Route.png)
-
-*Welcome message and note loaded programmatically from GET /api.*
+<p align="center">
+  <img src="Screenshots/Welcome%20Public%20Route.png" alt="Home Page" />
+</p>
+<p align="center"><em>Welcome message and note loaded programmatically from GET /api.</em></p>
 
 ### Foods Page
 
-![Foods Page](Screenshots/Foods%20Page.png)
-
-*Food cards retrieved from GET /api/foods with category filter chips.*
+<p align="center">
+  <img src="Screenshots/Foods%20Page.png" alt="Foods Page" />
+</p>
+<p align="center"><em>Food cards retrieved from GET /api/foods with category filter chips.</em></p>
 
 ### Food Details
 
-![Food Details](Screenshots/Food%20Details.png)
-
-*Full food details displayed from GET /api/foods/{id}.*
+<p align="center">
+  <img src="Screenshots/Food%20Details.png" alt="Food Details" />
+</p>
+<p align="center"><em>Full food details displayed from GET /api/foods/{id}.</em></p>
 
 ### Categories
 
-![Categories](Screenshots/Categories.png)
-
-*Category list from GET /api/categories.*
+<p align="center">
+  <img src="Screenshots/Categories.png" alt="Categories" />
+</p>
+<p align="center"><em>Category list from GET /api/categories.</em></p>
 
 ### Food Per Category
 
-![Food Per Category](Screenshots/Food%20Per%20Category.png)
-
-*Foods under a selected category from GET /api/categories/{id}/foods.*
+<p align="center">
+  <img src="Screenshots/Food%20Per%20Category.png" alt="Food Per Category" />
+</p>
+<p align="center"><em>Foods under a selected category from GET /api/categories/{id}/foods.</em></p>
 
 ### Ingredients
 
-![Ingredients](Screenshots/Ingredients.png)
-
-*Ingredient grid from GET /api/ingredients.*
+<p align="center">
+  <img src="Screenshots/Ingredients.png" alt="Ingredients" />
+</p>
+<p align="center"><em>Ingredient grid from GET /api/ingredients.</em></p>
 
 ### Empty Search
 
-![Empty Search](Screenshots/Empty%20Search.png)
-
-*No matching results from GET /api/foods/search/{name} when the search term is invalid or not found.*
+<p align="center">
+  <img src="Screenshots/Empty%20Search.png" alt="Empty Search" />
+</p>
+<p align="center"><em>No matching results from GET /api/foods/search/{name} when the search term is invalid or not found.</em></p>
 
 ### Food Search
 
-![Food Search](Screenshots/Food%20Search.png)
-
-*Search results displayed from GET /api/foods/search/{name} when a matching food is found.*
+<p align="center">
+  <img src="Screenshots/Food%20Search.png" alt="Food Search" />
+</p>
+<p align="center"><em>Search results displayed from GET /api/foods/search/{name} when a matching food is found.</em></p>
 
 ### Random Food
 
-![Random Food](Screenshots/Random%20Pick.png)
-
-*Random food displayed from GET /api/foods/random.*
+<p align="center">
+  <img src="Screenshots/Random%20Pick.png" alt="Random Food" />
+</p>
+<p align="center"><em>Random food displayed from GET /api/foods/random.</em></p>
 
 ### Add Food
 
-![Add Food](Screenshots/Add%20New%20Food.png)
-
-*Add Food form for submitting data via POST /api/foods.*
+<p align="center">
+  <img src="Screenshots/Add%20New%20Food.png" alt="Add Food" />
+</p>
+<p align="center"><em>Add Food form for submitting data via POST /api/foods.</em></p>
 
 ### Add Food Success
 
-![Add Food Success](Screenshots/Added%20Successfully.png)
-
-*Success confirmation after a valid POST /api/foods request.*
+<p align="center">
+  <img src="Screenshots/Added%20Successfully.png" alt="Add Food Success" />
+</p>
+<p align="center"><em>Success confirmation after a valid POST /api/foods request.</em></p>
 
 ### Invalid Token (Error Testing)
 
-![Invalid Token](Screenshots/Invalid%20Token.png)
-
-*Error message displayed when an invalid API token is used.*
+<p align="center">
+  <img src="Screenshots/Invalid%20Token.png" alt="Invalid Token" />
+</p>
+<p align="center"><em>Error message displayed when an invalid API token is used.</em></p>
 
 ### API Offline (Error Testing)
 
-![API Offline](Screenshots/API%20Offline.png)
-
-*Error message displayed when the API server is not running or unreachable.*
+<p align="center">
+  <img src="Screenshots/API%20Offline.png" alt="API Offline" />
+</p>
+<p align="center"><em>Error message displayed when the API server is not running or unreachable.</em></p>
 
 ---
 
@@ -283,7 +228,6 @@ Accept: application/json
 This client application uses the Filipino Cookbook API developed by:
 
 **Developer:** Lizhary Ylexis C. Gomez  
-**Course & Section:** Information Technology - 4B  
 **GitHub Username:** Yelsxii  
 **GitHub Repository:** https://github.com/Yelsxii/filipino-cookbook-api-gomez.git
 
@@ -311,10 +255,3 @@ filipino-cookbook-client-casilla/
 ├── .gitignore
 └── README.md
 ```
-
-## Security Notes
-
-- API tokens are stored in `js/config.js`, which is excluded from version control via `.gitignore`.
-- Only `js/config.example.js` with placeholder values is included in the repository.
-- The client communicates exclusively through HTTP API endpoints and does not access the API developer's database directly.
-- JSON responses are processed and displayed through UI elements — raw JSON is never shown as final output.
