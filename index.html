@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>Filipino Cookbook Client</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/style.css?v=20260730zg">
+</head>
+
+<body class="landing-page">
+
+<header>
+    <div class="header-inner">
+        <div class="brand">
+            <h1>Filipino Cookbook</h1>
+        </div>
+
+        <div class="header-end">
+            <nav aria-label="Main navigation">
+                <button type="button" data-page="home" class="nav-btn">
+                    Home
+                </button>
+
+                <button type="button" data-page="foods" class="nav-btn">
+                    Foods
+                </button>
+
+                <button type="button" data-page="categories" class="nav-btn">
+                    Categories
+                </button>
+
+                <button type="button" data-page="ingredients" class="nav-btn">
+                    Ingredients
+                </button>
+            </nav>
+        </div>
+
+        <form id="searchForm" class="header-search" role="search">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search food name..."
+                aria-label="Search food name"
+                required
+            >
+
+            <button type="submit">
+                Search
+            </button>
+        </form>
+    </div>
+</header>
+
+<main id="app">
+    <section class="hero hero-get-started">
+        <header class="landing-topbar">
+            <div class="landing-brand">
+                <h1 class="landing-brand-title">Filipino Cookbook</h1>
+            </div>
+        </header>
+
+        <div class="hero-get-started-inner">
+            <div class="hero-content">
+                <span class="hero-label">Welcome</span>
+
+                <h2 class="hero-headline">
+                    FRESH. AUTHENTIC. DELICIOUS<span class="hero-dot">.</span>
+                </h2>
+
+                <hr class="hero-divider" aria-hidden="true">
+
+                <p class="hero-lead" id="apiWelcomeMessage">
+                    Loading API welcome...
+                </p>
+
+                <p class="hero-description">
+                    This Application retrieves Filipino food information from
+                    the API developed by: Lizhary Ylexis C. Gomez.
+                </p>
+
+                <p class="hero-api-note" id="apiWelcomeNote" aria-live="polite"></p>
+
+                <button
+                    type="button"
+                    class="primary-button hero-cta"
+                    id="browseFoodsButton"
+                >
+                    Browse Foods
+                </button>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-visual-pattern"></div>
+                <img
+                    class="hero-food-image"
+                    src="images/Background/Get%20Started.png"
+                    alt="Filipino food platter with pancit, barbecue, and lechon kawali"
+                >
+            </div>
+        </div>
+
+        <footer class="landing-footer">
+            <div class="landing-footer-credits">
+                <p>API by <strong>Lizhary Ylexis Gomez</strong></p>
+                <span class="landing-footer-divider" aria-hidden="true">·</span>
+                <p>Client by <strong>Cherry Lyn M. Casilla</strong></p>
+            </div>
+        </footer>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-credits">
+            <p>
+                API by
+                <strong>Lizhary Ylexis Gomez</strong>
+            </p>
+
+            <span class="footer-divider" aria-hidden="true">·</span>
+
+            <p>
+                Client by
+                <strong>Cherry Lyn M. Casilla</strong>
+            </p>
+        </div>
+    </div>
+</footer>
+
+<aside class="page-actions" aria-label="Quick actions">
+    <button
+        type="button"
+        data-page="random"
+        class="page-action-btn page-action-btn-random"
+        aria-label="Random food"
+    >
+        <svg
+            class="page-action-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            fill="none"
+        >
+            <path
+                d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+        </svg>
+        <span>Random</span>
+    </button>
+
+    <button
+        type="button"
+        data-page="add"
+        class="page-action-btn page-action-btn-add"
+        aria-label="Add food"
+    >
+        <svg
+            class="page-action-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            fill="none"
+        >
+            <path
+                d="M12 5v14M5 12h14"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+            />
+        </svg>
+        <span>Add</span>
+    </button>
+</aside>
+
+<script src="js/config.js?v=20260730"></script>
+<script src="js/app.js?v=20260730zl"></script>
+
+</body>
+</html>
