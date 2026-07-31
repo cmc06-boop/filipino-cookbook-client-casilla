@@ -32,7 +32,7 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 
 - HTML5
 - CSS3
-- JavaScript (Vanilla)
+- JavaScript
 - Fetch API
 - JSON
 - XAMPP (Apache)
