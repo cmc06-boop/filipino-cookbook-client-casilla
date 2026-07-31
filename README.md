@@ -54,6 +54,9 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 git clone https://github.com/cmc06-boop/filipino-cookbook-client-casilla.git
 cd filipino-cookbook-client-casilla
 ```
+```bash
+cd filipino-cookbook-client-casilla
+```
 
 ### Step 2: Start the API server
 
@@ -61,7 +64,11 @@ Clone and run the classmate's API first:
 
 ```bash
 git clone https://github.com/Yelsxii/filipino-cookbook-api-gomez.git
+```
+```bash
 cd filipino-cookbook-api-gomez
+```
+```bash
 composer install
 ```
 
