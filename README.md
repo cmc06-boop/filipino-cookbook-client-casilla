@@ -28,7 +28,7 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 
 ---
 
-## 3. Technologies Used
+## Technologies Used
 
 - HTML5
 - CSS3
@@ -40,7 +40,7 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 
 ---
 
-## 4. Installation Instructions
+## Installation Instructions
 
 ### Prerequisites
 
@@ -110,7 +110,7 @@ Ensure the API server is running before using the client.
 
 ---
 
-## 5. API Endpoints Used
+## API Endpoints Used
 
 The following endpoints from the Filipino Cookbook API are consumed by this client application. Secured endpoints require `Authorization: Bearer YOUR_API_TOKEN` and `Accept: application/json`.
 
@@ -126,7 +126,7 @@ The following endpoints from the Filipino Cookbook API are consumed by this clie
 
 ---
 
-## 6. Screenshots
+## Screenshots
 
 ### Home Page
 
@@ -170,19 +170,13 @@ The following endpoints from the Filipino Cookbook API are consumed by this clie
 </p>
 <p align="center"><em>Ingredient grid from GET /api/ingredients.</em></p>
 
-### Empty Search
-
-<p align="center">
-  <img src="Screenshots/Empty%20Search.png" alt="Empty Search" />
-</p>
-<p align="center"><em>No matching results from GET /api/foods/search/{name} when the search term is invalid or not found.</em></p>
-
 ### Food Search
 
 <p align="center">
   <img src="Screenshots/Food%20Search.png" alt="Food Search" />
 </p>
 <p align="center"><em>Search results displayed from GET /api/foods/search/{name} when a matching food is found.</em></p>
+
 
 ### Random Food
 
@@ -205,6 +199,13 @@ The following endpoints from the Filipino Cookbook API are consumed by this clie
 </p>
 <p align="center"><em>Success confirmation after a valid POST /api/foods request.</em></p>
 
+### Empty Search
+
+<p align="center">
+  <img src="Screenshots/Empty%20Search.png" alt="Empty Search" />
+</p>
+<p align="center"><em>No matching results from GET /api/foods/search/{name} when the search term is invalid or not found.</em></p>
+
 ### Invalid Token (Error Testing)
 
 <p align="center">
@@ -221,7 +222,7 @@ The following endpoints from the Filipino Cookbook API are consumed by this clie
 
 ---
 
-## 7. API Source and Acknowledgment
+## API Source and Acknowledgment
 
 ### API Source
 
