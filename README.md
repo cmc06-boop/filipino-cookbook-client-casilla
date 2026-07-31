@@ -52,7 +52,6 @@ This application uses the **Filipino Cookbook API** developed by **Lizhary Ylexi
 
 ```bash
 git clone https://github.com/cmc06-boop/filipino-cookbook-client-casilla.git
-cd filipino-cookbook-client-casilla
 ```
 ```bash
 cd filipino-cookbook-client-casilla
