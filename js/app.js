@@ -1,10 +1,133 @@
-"use strict";
+﻿"use strict";
 
+// SPA — nagbabago lang ang #app content, walang full page reload
 const app = document.getElementById("app");
 const navigationButtons = document.querySelectorAll(
     "header button[data-page], .page-actions button[data-page]"
 );
 
+// Pinaka-importante: dito dumadaan lahat ng API call (fetch + Bearer token)
+async function apiRequest(endpoint, options = {}) {
+    const url = `${API_CONFIG.baseUrl}${endpoint}`;
+
+    const requestOptions = {
+        method: options.method || "GET",
+        headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${API_CONFIG.token}`
+        }
+    };
+
+    if (options.body) {
+        requestOptions.headers["Content-Type"] =
+            "application/json";
+
+        requestOptions.body = JSON.stringify(options.body);
+    }
+
+    try {
+        const response = await fetch(url, requestOptions);
+
+        let data = null;
+
+        try {
+            data = await response.json();
+        } catch {
+            data = null;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data?.message ||
+                `Request failed with status ${response.status}.`
+            );
+        }
+
+        return data;
+    } catch (error) {
+        throw new Error(
+            error.message || "Unable to connect to the API."
+        );
+    }
+}
+
+// I-normalize ang API response dahil iba-iba ang JSON format
+function normalizeCategories(result) {
+    return Array.isArray(result)
+        ? result
+        : result?.data || result?.categories || [];
+}
+
+function normalizeFoods(result) {
+    return Array.isArray(result)
+        ? result
+        : result?.data || result?.foods || [];
+}
+
+function normalizeFood(result) {
+    if (!result || typeof result !== "object") {
+        return null;
+    }
+
+    if (Array.isArray(result)) {
+        return result[0] || null;
+    }
+
+    if (result.food_id || result.food_name) {
+        return result;
+    }
+
+    return result.data || result.food || null;
+}
+
+function getFoodsApiEndpoint(categoryId) {
+    if (!categoryId || categoryId === "all") {
+        return "/api/foods";
+    }
+
+    return `/api/categories/${encodeURIComponent(categoryId)}/foods`;
+}
+
+// Proteksyon laban sa XSS bago i-display ang data mula sa API
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatInstructions(value) {
+    return String(value ?? "")
+        .replace(/^\s+|\s+$/g, "")
+        .replace(/\r\n/g, "\n");
+}
+
+// Local images lang — hindi galing sa API
+function getImagePath(folder, name) {
+    if (!name) {
+        return "";
+    }
+
+    const fileName = `${String(name).trim().toLowerCase()}.jpg`;
+
+    return `images/${folder}/${fileName}`;
+}
+
+function formatApiWelcomeNote(note) {
+    const trimmed = String(note ?? "").trim();
+
+    if (!trimmed) {
+        return "";
+    }
+
+    return trimmed.startsWith("Note:")
+        ? trimmed
+        : `Note: ${trimmed}`;
+}
+
+// Modals — pop-up para sa details, search, add food, at iba pa
 function updateBodyModalState() {
     const anyOpen = document.querySelector(
         ".details-modal:not([hidden])"
@@ -72,15 +195,6 @@ function bindFoodCardClicks() {
         });
 }
 
-function getFoodDetailsModal() {
-    const modal = createOverlayModal(
-        "foodDetailsModal",
-        "foodDetailsModalDialog"
-    );
-
-    return modal;
-}
-
 function setFoodDetailsDialogMode(mode = "details") {
     const dialog = document.getElementById("foodDetailsModalDialog");
 
@@ -94,42 +208,7 @@ function setFoodDetailsDialogMode(mode = "details") {
     );
 }
 
-const foodDetailsCloseBehavior = {
-    closeSearchResultsToo: false
-};
-
-function closeFoodDetailsModal() {
-    const modal = document.getElementById("foodDetailsModal");
-
-    if (modal) {
-        modal.hidden = true;
-    }
-
-    if (foodDetailsCloseBehavior.closeSearchResultsToo) {
-        foodDetailsCloseBehavior.closeSearchResultsToo = false;
-        closeSearchResultsModal();
-        return;
-    }
-
-    updateBodyModalState();
-}
-
-function showFoodDetailsLoading() {
-    const modal = getFoodDetailsModal();
-    const dialog = document.getElementById("foodDetailsModalDialog");
-
-    dialog.innerHTML = `
-        <section class="details-card details-card-loading">
-            <div class="loading-box">
-                <div class="spinner" aria-hidden="true"></div>
-                <p>Loading food details...</p>
-            </div>
-        </section>
-    `;
-
-    openOverlayModal(modal);
-}
-
+// Render — binubuo ang HTML mula sa JSON data ng API
 function renderFoodDetailsHtml(food) {
     const ingredients = Array.isArray(food.ingredients)
         ? food.ingredients
@@ -216,60 +295,6 @@ function renderFoodDetailsHtml(food) {
         </section>
     `;
 }
-
-async function apiRequest(endpoint, options = {}) {
-    const url = `${API_CONFIG.baseUrl}${endpoint}`;
-
-    const requestOptions = {
-        method: options.method || "GET",
-        headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${API_CONFIG.token}`
-        }
-    };
-
-    if (options.body) {
-        requestOptions.headers["Content-Type"] =
-            "application/json";
-
-        requestOptions.body = JSON.stringify(options.body);
-    }
-
-    try {
-        const response = await fetch(url, requestOptions);
-
-        let data = null;
-
-        try {
-            data = await response.json();
-        } catch {
-            data = null;
-        }
-
-        if (!response.ok) {
-            throw new Error(
-                data?.message ||
-                `Request failed with status ${response.status}.`
-            );
-        }
-
-        return data;
-    } catch (error) {
-        throw new Error(
-            error.message || "Unable to connect to the API."
-        );
-    }
-}
-
-function escapeHtml(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
 function renderSearchStyleModalHtml(options = {}) {
     const {
         eyebrow = "",
@@ -314,22 +339,6 @@ function renderFoodDetailsErrorHtml(message, closeButtonId) {
         message,
         closeButtonId
     });
-}
-
-function formatInstructions(value) {
-    return String(value ?? "")
-        .replace(/^\s+|\s+$/g, "")
-        .replace(/\r\n/g, "\n");
-}
-
-function getImagePath(folder, name) {
-    if (!name) {
-        return "";
-    }
-
-    const fileName = `${String(name).trim().toLowerCase()}.jpg`;
-
-    return `images/${folder}/${fileName}`;
 }
 
 function renderFoodCard(food) {
@@ -393,51 +402,6 @@ function renderCategoryCard(category) {
         </article>
     `;
 }
-
-const foodsPageState = {
-    categories: [],
-    foods: [],
-    activeCategoryId: "all",
-    isLoading: false,
-    loadError: ""
-};
-
-function normalizeCategories(result) {
-    return Array.isArray(result)
-        ? result
-        : result?.data || result?.categories || [];
-}
-
-function normalizeFoods(result) {
-    return Array.isArray(result)
-        ? result
-        : result?.data || result?.foods || [];
-}
-
-function normalizeFood(result) {
-    if (!result || typeof result !== "object") {
-        return null;
-    }
-
-    if (Array.isArray(result)) {
-        return result[0] || null;
-    }
-
-    if (result.food_id || result.food_name) {
-        return result;
-    }
-
-    return result.data || result.food || null;
-}
-
-function getFoodsApiEndpoint(categoryId) {
-    if (!categoryId || categoryId === "all") {
-        return "/api/foods";
-    }
-
-    return `/api/categories/${encodeURIComponent(categoryId)}/foods`;
-}
-
 function getCategoryFilterIcon(categoryKey) {
     const key = String(categoryKey || "").toLowerCase();
 
@@ -780,105 +744,6 @@ function renderFoodsGridSection(foods) {
         </section>
     `;
 }
-
-function renderFoodsPageContent() {
-    const {
-        categories,
-        activeCategoryId,
-        foods,
-        isLoading,
-        loadError
-    } = foodsPageState;
-
-    let gridContent;
-
-    if (isLoading) {
-        gridContent = renderFoodsGridLoading();
-    } else if (loadError) {
-        gridContent = renderFoodsGridError(loadError);
-    } else {
-        gridContent = renderFoodsGridSection(foods);
-    }
-
-    app.innerHTML = `
-        ${renderFoodsFilterHeader(categories, activeCategoryId)}
-        ${gridContent}
-    `;
-
-    bindCategoryFilterClicks();
-
-    if (!isLoading && !loadError) {
-        bindFoodCardClicks();
-    }
-}
-
-async function loadFoodsByCategory(categoryId) {
-    foodsPageState.activeCategoryId = categoryId;
-    foodsPageState.isLoading = true;
-    foodsPageState.loadError = "";
-    renderFoodsPageContent();
-
-    try {
-        const result = await apiRequest(getFoodsApiEndpoint(categoryId));
-        foodsPageState.foods = normalizeFoods(result);
-    } catch (error) {
-        foodsPageState.foods = [];
-        foodsPageState.loadError = error.message;
-    } finally {
-        foodsPageState.isLoading = false;
-        renderFoodsPageContent();
-    }
-}
-
-function bindCategoryFilterClicks() {
-    document
-        .querySelectorAll("[data-category-filter]")
-        .forEach((button) => {
-            button.addEventListener("click", () => {
-                const categoryId = button.dataset.categoryFilter;
-
-                if (
-                    categoryId === foodsPageState.activeCategoryId &&
-                    !foodsPageState.isLoading
-                ) {
-                    return;
-                }
-
-                loadFoodsByCategory(categoryId);
-            });
-        });
-}
-
-function showLoading(message = "Loading data...") {
-    app.innerHTML = `
-        <section class="loading-box">
-            <div class="spinner" aria-hidden="true"></div>
-            <p>${escapeHtml(message)}</p>
-        </section>
-    `;
-}
-
-function showError(message) {
-    app.innerHTML = `
-        <section class="error-message">
-            <h2>Unable to load data</h2>
-            <p>${escapeHtml(message)}</p>
-        </section>
-    `;
-}
-
-function setActiveNav(page) {
-    navigationButtons.forEach((button) => {
-        button.classList.toggle(
-            "active",
-            button.dataset.page === page
-        );
-    });
-
-    document.body.classList.toggle("landing-page", page === "home");
-    document.body.classList.toggle("foods-page", page === "foods");
-}
-
 function renderHomePage() {
     return `
         <section class="hero hero-get-started">
@@ -931,26 +796,163 @@ function renderHomePage() {
             <footer class="landing-footer">
                 <div class="landing-footer-credits">
                     <p>API by <strong>Lizhary Ylexis Gomez</strong></p>
-                    <span class="landing-footer-divider" aria-hidden="true">·</span>
+                    <span class="landing-footer-divider" aria-hidden="true">Â·</span>
                     <p>Client by <strong>Cherry Lyn M. Casilla</strong></p>
                 </div>
             </footer>
         </section>
     `;
 }
+function renderRandomFoodDetailsHtml(food) {
+    const ingredients = Array.isArray(food.ingredients)
+        ? food.ingredients
+        : [];
 
-function formatApiWelcomeNote(note) {
-    const trimmed = String(note ?? "").trim();
+    const ingredientList = ingredients.length
+        ? ingredients.map((item) => {
+            const name = typeof item === "object"
+                ? item.ingredient_name
+                : item;
 
-    if (!trimmed) {
-        return "";
-    }
+            return `<li>${escapeHtml(name)}</li>`;
+        }).join("")
+        : "<li>No ingredients available.</li>";
 
-    return trimmed.startsWith("Note:")
-        ? trimmed
-        : `Note: ${trimmed}`;
+    const foodName = food.food_name || "Random Food";
+
+    return `
+        <span class="random-badge">Random Pick</span>
+
+        <h2>${escapeHtml(foodName)}</h2>
+
+        <div class="details-grid">
+            <article>
+                <h3>Category</h3>
+                <p>${escapeHtml(food.category_name || "Not specified")}</p>
+            </article>
+
+            <article>
+                <h3>Origin</h3>
+                <p>${escapeHtml(food.origin_name || "Not specified")}</p>
+            </article>
+        </div>
+
+        <div class="details-section">
+            <h3>Ingredients</h3>
+
+            <ul class="ingredient-list">
+                ${ingredientList}
+            </ul>
+        </div>
+
+        <div class="details-section details-section-instructions">
+            <h3>Cooking Instructions</h3><p class="details-instructions-text">${escapeHtml(
+                formatInstructions(food.instructions) ||
+                "No instructions available."
+            )}</p>
+        </div>
+    `;
 }
 
+function renderRandomFoodHtml(food) {
+    const foodName = food.food_name || "Random Food";
+    const imagePath = getImagePath("Foods", foodName);
+
+    return `
+        <section class="details-card random-card">
+            <button
+                type="button"
+                class="details-close"
+                id="closeRandomFood"
+                aria-label="Close"
+            >
+                &times;
+            </button>
+
+            <div class="details-hero random-card-hero" id="randomFoodHero">
+                <img
+                    src="${escapeHtml(imagePath)}"
+                    alt="${escapeHtml(foodName)}"
+                    onerror="this.closest('.details-hero').classList.add('no-image')"
+                >
+            </div>
+
+            <div class="random-card-details">
+                <div class="random-card-content">
+                    <div
+                        class="details-body random-card-scroll"
+                        id="randomFoodScroll"
+                    >
+                        ${renderRandomFoodDetailsHtml(food)}
+                    </div>
+
+                    <div
+                        class="random-card-loading"
+                        id="randomFoodLoading"
+                        hidden
+                    >
+                        <div class="spinner" aria-hidden="true"></div>
+                        <p>Loading random food...</p>
+                    </div>
+                </div>
+
+                <div class="random-card-actions">
+                    <button
+                        type="button"
+                        class="primary-button"
+                        id="anotherRandom"
+                    >
+                        Get Another Random Food
+                    </button>
+                </div>
+            </div>
+        </section>
+    `;
+}
+
+function showLoading(message = "Loading data...") {
+    app.innerHTML = `
+        <section class="loading-box">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>${escapeHtml(message)}</p>
+        </section>
+    `;
+}
+
+function showError(message) {
+    app.innerHTML = `
+        <section class="error-message">
+            <h2>Unable to load data</h2>
+            <p>${escapeHtml(message)}</p>
+        </section>
+    `;
+}
+
+function setActiveNav(page) {
+    navigationButtons.forEach((button) => {
+        button.classList.toggle(
+            "active",
+            button.dataset.page === page
+        );
+    });
+
+    document.body.classList.toggle("landing-page", page === "home");
+    document.body.classList.toggle("foods-page", page === "foods");
+}
+
+function showNotReady(title) {
+    app.innerHTML = `
+        <section class="empty-message">
+            <h2>${escapeHtml(title)}</h2>
+
+            <p>
+                This page will be added in the next step.
+            </p>
+        </section>
+    `;
+}
+
+// Home — GET /api para sa welcome message
 async function loadApiWelcome() {
     const messageEl = document.getElementById("apiWelcomeMessage");
     const noteEl = document.getElementById("apiWelcomeNote");
@@ -1021,6 +1023,83 @@ function showHome() {
     requestAnimationFrame(() => playLandingEntrance());
 }
 
+// Foods — GET /api/categories at GET /api/foods (may category filter)
+const foodsPageState = {
+    categories: [],
+    foods: [],
+    activeCategoryId: "all",
+    isLoading: false,
+    loadError: ""
+};
+
+function renderFoodsPageContent() {
+    const {
+        categories,
+        activeCategoryId,
+        foods,
+        isLoading,
+        loadError
+    } = foodsPageState;
+
+    let gridContent;
+
+    if (isLoading) {
+        gridContent = renderFoodsGridLoading();
+    } else if (loadError) {
+        gridContent = renderFoodsGridError(loadError);
+    } else {
+        gridContent = renderFoodsGridSection(foods);
+    }
+
+    app.innerHTML = `
+        ${renderFoodsFilterHeader(categories, activeCategoryId)}
+        ${gridContent}
+    `;
+
+    bindCategoryFilterClicks();
+
+    if (!isLoading && !loadError) {
+        bindFoodCardClicks();
+    }
+}
+
+async function loadFoodsByCategory(categoryId) {
+    foodsPageState.activeCategoryId = categoryId;
+    foodsPageState.isLoading = true;
+    foodsPageState.loadError = "";
+    renderFoodsPageContent();
+
+    try {
+        const result = await apiRequest(getFoodsApiEndpoint(categoryId));
+        foodsPageState.foods = normalizeFoods(result);
+    } catch (error) {
+        foodsPageState.foods = [];
+        foodsPageState.loadError = error.message;
+    } finally {
+        foodsPageState.isLoading = false;
+        renderFoodsPageContent();
+    }
+}
+
+function bindCategoryFilterClicks() {
+    document
+        .querySelectorAll("[data-category-filter]")
+        .forEach((button) => {
+            button.addEventListener("click", () => {
+                const categoryId = button.dataset.categoryFilter;
+
+                if (
+                    categoryId === foodsPageState.activeCategoryId &&
+                    !foodsPageState.isLoading
+                ) {
+                    return;
+                }
+
+                loadFoodsByCategory(categoryId);
+            });
+        });
+}
+
 async function showFoods() {
     closeAllOverlayModals();
     setActiveNav("foods");
@@ -1039,6 +1118,52 @@ async function showFoods() {
     } catch (error) {
         showError(error.message);
     }
+}
+
+// Food Details — GET /api/foods/{id}
+function getFoodDetailsModal() {
+    const modal = createOverlayModal(
+        "foodDetailsModal",
+        "foodDetailsModalDialog"
+    );
+
+    return modal;
+}
+
+const foodDetailsCloseBehavior = {
+    closeSearchResultsToo: false
+};
+
+function closeFoodDetailsModal() {
+    const modal = document.getElementById("foodDetailsModal");
+
+    if (modal) {
+        modal.hidden = true;
+    }
+
+    if (foodDetailsCloseBehavior.closeSearchResultsToo) {
+        foodDetailsCloseBehavior.closeSearchResultsToo = false;
+        closeSearchResultsModal();
+        return;
+    }
+
+    updateBodyModalState();
+}
+
+function showFoodDetailsLoading() {
+    const modal = getFoodDetailsModal();
+    const dialog = document.getElementById("foodDetailsModalDialog");
+
+    dialog.innerHTML = `
+        <section class="details-card details-card-loading">
+            <div class="loading-box">
+                <div class="spinner" aria-hidden="true"></div>
+                <p>Loading food details...</p>
+            </div>
+        </section>
+    `;
+
+    openOverlayModal(modal);
 }
 
 async function showFoodDetails(foodId, options = {}) {
@@ -1079,6 +1204,7 @@ async function showFoodDetails(foodId, options = {}) {
     }
 }
 
+// Search — GET /api/foods/search/{name}
 function closeSearchResultsModal() {
     const modal = document.getElementById("searchResultsModal");
 
@@ -1209,6 +1335,7 @@ async function handleSearch(event) {
     await showSearchResults(searchName);
 }
 
+// Categories — GET /api/categories at GET /api/categories/{id}/foods
 async function showCategories() {
     closeAllOverlayModals();
     setActiveNav("categories");
@@ -1371,6 +1498,7 @@ async function showCategoryFoods(categoryId, categoryName) {
     }
 }
 
+// Ingredients — GET /api/ingredients
 async function showIngredients() {
     closeAllOverlayModals();
     setActiveNav("ingredients");
@@ -1432,113 +1560,7 @@ async function showIngredients() {
     }
 }
 
-function renderRandomFoodDetailsHtml(food) {
-    const ingredients = Array.isArray(food.ingredients)
-        ? food.ingredients
-        : [];
-
-    const ingredientList = ingredients.length
-        ? ingredients.map((item) => {
-            const name = typeof item === "object"
-                ? item.ingredient_name
-                : item;
-
-            return `<li>${escapeHtml(name)}</li>`;
-        }).join("")
-        : "<li>No ingredients available.</li>";
-
-    const foodName = food.food_name || "Random Food";
-
-    return `
-        <span class="random-badge">Random Pick</span>
-
-        <h2>${escapeHtml(foodName)}</h2>
-
-        <div class="details-grid">
-            <article>
-                <h3>Category</h3>
-                <p>${escapeHtml(food.category_name || "Not specified")}</p>
-            </article>
-
-            <article>
-                <h3>Origin</h3>
-                <p>${escapeHtml(food.origin_name || "Not specified")}</p>
-            </article>
-        </div>
-
-        <div class="details-section">
-            <h3>Ingredients</h3>
-
-            <ul class="ingredient-list">
-                ${ingredientList}
-            </ul>
-        </div>
-
-        <div class="details-section details-section-instructions">
-            <h3>Cooking Instructions</h3><p class="details-instructions-text">${escapeHtml(
-                formatInstructions(food.instructions) ||
-                "No instructions available."
-            )}</p>
-        </div>
-    `;
-}
-
-function renderRandomFoodHtml(food) {
-    const foodName = food.food_name || "Random Food";
-    const imagePath = getImagePath("Foods", foodName);
-
-    return `
-        <section class="details-card random-card">
-            <button
-                type="button"
-                class="details-close"
-                id="closeRandomFood"
-                aria-label="Close"
-            >
-                &times;
-            </button>
-
-            <div class="details-hero random-card-hero" id="randomFoodHero">
-                <img
-                    src="${escapeHtml(imagePath)}"
-                    alt="${escapeHtml(foodName)}"
-                    onerror="this.closest('.details-hero').classList.add('no-image')"
-                >
-            </div>
-
-            <div class="random-card-details">
-                <div class="random-card-content">
-                    <div
-                        class="details-body random-card-scroll"
-                        id="randomFoodScroll"
-                    >
-                        ${renderRandomFoodDetailsHtml(food)}
-                    </div>
-
-                    <div
-                        class="random-card-loading"
-                        id="randomFoodLoading"
-                        hidden
-                    >
-                        <div class="spinner" aria-hidden="true"></div>
-                        <p>Loading random food...</p>
-                    </div>
-                </div>
-
-                <div class="random-card-actions">
-                    <button
-                        type="button"
-                        class="primary-button"
-                        id="anotherRandom"
-                    >
-                        Get Another Random Food
-                    </button>
-                </div>
-            </div>
-        </section>
-    `;
-}
-
+// Random — GET /api/foods/random
 function setRandomFoodRefreshing(isLoading) {
     const loading = document.getElementById("randomFoodLoading");
     const button = document.getElementById("anotherRandom");
@@ -1718,6 +1740,7 @@ async function showRandomFood(options = {}) {
     }
 }
 
+// Add Food — POST /api/foods (Create)
 function closeAddFoodModal() {
     const modal = document.getElementById("addFoodModal");
 
@@ -2084,19 +2107,7 @@ async function handleAddFood(event) {
         submitButton.textContent = "Add Food";
     }
 }
-
-function showNotReady(title) {
-    app.innerHTML = `
-        <section class="empty-message">
-            <h2>${escapeHtml(title)}</h2>
-
-            <p>
-                This page will be added in the next step.
-            </p>
-        </section>
-    `;
-}
-
+// App startup — navigation, search, at initial page load
 navigationButtons.forEach((button) => {
     button.addEventListener("click", () => {
         const page = button.dataset.page;
